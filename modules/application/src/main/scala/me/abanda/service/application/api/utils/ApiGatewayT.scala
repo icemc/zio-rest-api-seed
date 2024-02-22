@@ -315,8 +315,9 @@ trait Interceptors {
         )
         _ <-
           if (
-            !url.contains("/docs") && !url.contains("/docs-excluded") && !url
-              .contains("/backoffice-docs") && !url.endsWith("/metrics") && !url.endsWith("/health")
+            !url.contains("/docs") && !url.contains("/docs-excluded") && !url.endsWith(
+              "/metrics"
+            ) && !url.endsWith("/health") && !url.endsWith("/version")
           ) {
             annotateWithRequest(
               logInfo(
@@ -429,24 +430,7 @@ trait Interceptors {
             )
             _ <- annotateWithRequest(
               logError(
-                s"Incoming http request error. Reason: ${apiError.message}",
-                Some(
-                  Json
-                    .obj(
-                      "type" -> Json.fromString("api-gateway-request-error"),
-                      "userId" -> request.identity
-                        .map(_.id.asJson)
-                        .getOrElse(Json.Null),
-                      "requestId" -> request.requestId.id.asJson,
-                      "sessionId" -> request.sessionId.map(_.id.asJson).getOrElse(Json.Null),
-                      "method"    -> method.asJson,
-                      "status"    -> apiError.code.asJson,
-                      "body"      -> apiError.asJson,
-                      "path"      -> path.asJson
-                    )
-                    .dropEmptyValues
-                    .dropNullValues
-                )
+                s"Incoming http request error. Reason: ${apiError.message}"
               )
             )
           } yield ()).provide(logger)
