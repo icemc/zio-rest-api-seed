@@ -1,4 +1,4 @@
-# Hiis ZIO microservice seed project
+# ZIO microservice seed project
 
 ![Scala Version](https://img.shields.io/badge/Scala-2.13.8-red)
 ![SBT Version](https://img.shields.io/badge/SBT-1.7.2-blueviolet)
@@ -44,7 +44,7 @@ This structure is standard across most microservice code bases at Hiis and shoul
 - Import the project in your preferred sbt supported IDE (we recommend Intellij Idea, the community version will suffice)
 - Make sure all external dependencies are up and running (See [docker-compose.yml](./docker-compose.yml) file)
 - Start coding and testing. 
-- Pull request are welcomed.
+- Pull requests are welcomed.
 
 ## Contributing
 This project is open to contributions be it through issues or pull request. Have a look at our [`contribution guide`](./CONTRIBUTING.md) before you get started.
