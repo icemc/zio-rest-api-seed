@@ -1,0 +1,28 @@
+<configuration>
+
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
+
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+        <resetJUL>true</resetJUL>
+    </contextListener>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <includeMDC>true</includeMDC>
+            <provider class="net.logstash.logback.composite.loggingevent.LoggingEventPatternJsonProvider"/>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+    </root>
+
+    <logger name="io.hiis" level="DEBUG" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+
+    <logger name="org.apache" level="ERROR"/>
+    <logger name="org.apache.kafka" level="ERROR"/>
+    <logger name="io.netty" level="ERROR"/>
+    <logger name="org.mongodb.driver" level="ERROR" />
+</configuration>
