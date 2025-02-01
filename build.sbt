@@ -1,12 +1,12 @@
 import Dependencies.Libraries._
 
-ThisBuild / scalaVersion     := "2.13.8"
-ThisBuild / organization     := "me.abanda"
-ThisBuild / organizationName := "abanda"
+ThisBuild / scalaVersion     := "2.13.16"
+ThisBuild / organization     := "io.hiis"
+ThisBuild / organizationName := "HIIS"
 
-val applicationName    = "rest-api-seed"
+val applicationName    = "zio-api-seed"
 val applicationVersion = sys.env.getOrElse("VERSION", "0.0.1")
-val dockerUser         = "abanda"
+val dockerUser         = "hiis"
 
 lazy val root = project
   .in(file("."))
@@ -19,11 +19,28 @@ lazy val root = project
     semanticdbEnabled  := true,
     semanticdbVersion  := scalafixSemanticdb.revision
   )
-  .enablePlugins(DockerPlugin, ScalaUnidocPlugin, BuildInfoPlugin)
+  .enablePlugins(DockerPlugin, BuildInfoPlugin)
   .disablePlugins(sbtassembly.AssemblyPlugin)
   .aggregate(
+    core,
     application,
     it
+  )
+
+lazy val core = project
+  .in(file("modules/core"))
+  .disablePlugins(sbtassembly.AssemblyPlugin)
+  .enablePlugins(SbtTwirl, BuildInfoPlugin)
+  .settings(
+    compilerPlugins.flatMap(addCompilerPlugin),
+    commonSettings ++ coverageSettings ++ testSettings,
+    consoleSettings,
+    buildInfo,
+    buildInfoOps,
+    name := "core",
+    TwirlKeys.templateImports += "io.hiis._",
+    libraryDependencies ++=
+      zio ++ metrics ++ cats ++ json ++ logging ++ apache ++ tests // Add all common library dependencies here. Have a look at Dependencies object
   )
 
 lazy val application = project
@@ -35,13 +52,14 @@ lazy val application = project
     consoleSettings,
     buildInfo,
     buildInfoOps,
-    name    := s"$applicationName-application",
+    name    := "application",
     version := sys.env.getOrElse("VERSION", applicationVersion),
     assemblySettings,
-    TwirlKeys.templateImports += "io.hiis.*",
+    TwirlKeys.templateImports += "io.hiis._",
     libraryDependencies ++=
-      zio ++ tapir ++ metrics ++ cats ++ json ++ logging ++ apache ++ auth ++ zioConfig ++ mongodb ++ redis ++ tests
+      (tapir ++ auth ++ zioConfig ++ mongodb ++ redis ++ tests).map(_.exclude("org.slf4j", "*"))
   )
+  .dependsOn(core)
 
 lazy val it = (project in file("modules/it"))
   .configs(IntegrationTest)
@@ -50,7 +68,7 @@ lazy val it = (project in file("modules/it"))
     compilerPlugins.flatMap(addCompilerPlugin),
     commonSettings ++ coverageSettings ++ testSettings,
     consoleSettings,
-    name    := s"$applicationName-integration-test",
+    name    := "integration-test",
     version := sys.env.getOrElse("VERSION", applicationVersion),
     Defaults.itSettings,
     libraryDependencies ++= integrationTest
@@ -60,11 +78,19 @@ lazy val it = (project in file("modules/it"))
 lazy val commonSettings = Seq(
   scalafmtOnCompile := true,
   scalacOptions ++= compilerOptions,
-  javacOptions ++= Seq("-source", "17", "-target", "17"),
+  javacOptions ++= Seq("-source", "21", "-target", "21"),
   semanticdbEnabled := true,
   semanticdbVersion := scalafixSemanticdb.revision,
   scalafixDependencies.withRank(KeyRanks.Invisible) += organizeImports,
-  resolvers ++= Resolver.sonatypeOssRepos("snapshots")
+  resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
+  resolvers += "hiis-repository-releases" at "https://artifacts.hiis.io/releases",
+  resolvers += "hiis-repository-private" at "https://artifacts.hiis.io/private",
+  credentials += Credentials(
+    "Reposilite",
+    "artifacts.hiis.io",
+    sys.env.getOrElse("DEV_ID", "dev"),
+    sys.env.getOrElse("ARTIFACT_TOKEN", "no-token-provided")
+  )
 )
 
 lazy val consoleSettings = Seq(
@@ -112,7 +138,7 @@ lazy val dockerSettings = Seq(
     val artifactTargetPath = s"/app/${artifact.name}"
 
     new Dockerfile {
-      from("openjdk:17-alpine")
+      from("openjdk:21-alpine")
       add(artifact, artifactTargetPath)
       expose(9090) // Make sure your app is serving at this port. See ApiGateway Class
       entryPoint("java", "-jar", artifactTargetPath)
@@ -130,12 +156,12 @@ lazy val coverageSettings = Seq(
   coverageFailOnMinimum      := true,
   coverageMinimumStmtTotal   := 85,
   coverageMinimumBranchTotal := 70,
-  coverageExcludedPackages   := ".*\\.abanda\\.Application;.*\\.abanda\\.ApiGatewayT"
+  coverageExcludedPackages   := ".*\\.hiis\\.Application;.*\\.hiis\\.ApiGatewayT"
 )
 
 // to start app in separate JVM and allow killing it without restarting SBT set to true (developing purpose)
 lazy val testSettings = Seq(
-  libraryDependencies += "com.vladsch.flexmark" % "flexmark-all" % "0.64.6" % Test,
+  libraryDependencies += "com.vladsch.flexmark" % "flexmark-all" % "0.64.8" % Test,
   run / fork                                   := false,
   Test / fork                                  := true,
   Test / parallelExecution                     := false,
@@ -150,7 +176,7 @@ lazy val testSettings = Seq(
 )
 
 lazy val buildInfo = Seq(
-  buildInfoPackage             := "me.abanda.service.application.build",
+  buildInfoPackage             := "io.hiis.service.core.build",
   buildInfoObject              := "BuildInfo",
   buildInfoKeys                := Seq[BuildInfoKey](scalaVersion, sbtVersion),
   buildInfoKeys += "name"      -> applicationName,

@@ -1,61 +1,41 @@
 import sbt._
 
-/** Created by Abanda Ludovic on 19/09/2022 */
+/** Created by Ludovic Temgoua Abanda (icemc) on 19/09/2022 */
 object Dependencies {
 
   private object Versions {
-    val zio                     = "2.0.15"
-    val zioKafka                = "2.4.2"
-    val zioConfig               = "3.0.7"
-    val pureConfig              = "0.17.1"
-    val zioLogging              = "2.1.8"
-    val zioLog4j                = "2.1.8"
-    val zioSlick                = "0.5.0"
-    val circe                   = "0.14.3"
-    val playJson                = "2.9.3"
-    val log4j                   = "2.19.0"
-    val disruptor               = "3.4.4"
-    val kafka                   = "3.3.1"
+    val zio                     = "2.1.6"
+    val zioConfig               = "4.0.2"
+    val zioLogging              = "2.3.0"
+    val zioLog4j                = "2.2.4"
+    val circe                   = "0.14.9"
     val zioInteropCats          = "23.0.0.0"
-    val zioResilience           = "0.9.0"
-    val ZioHttp                 = "2.0.0-RC9"
+    val zioResilience           = "0.9.4"
+    val ZioHttp                 = "2.0.0-RC11"
     val zioJson                 = "0.3.0-RC10"
-    val ZioPrelude              = "1.0.0-RC15"
-    val redis                   = "3.42"
-    val embeddedRedis           = "0.4.0"
+    val ZioPrelude              = "1.0.0-RC27"
     val reactivemongo           = "1.1.0-RC6"
-    val embeddedMongodb         = "3.5.1"
-    val postgresSql             = "42.5.1"
-    val flyway                  = "9.12.0"
-    val slickPostgres           = "0.21.1"
-    val slick                   = "3.4.1"
-    val scalaTime               = "2.32.0"
-    val sttpAuth                = "0.15.2"
-    val pbkdf2                  = "0.7.0"
-    val jwtCirce                = "9.1.2"
+    val sttpAuth                = "0.18.0"
+    val pbkdf2                  = "0.7.2"
+    val jwtCirce                = "10.0.1"
     val organizeImportsVersion  = "0.6.0"
-    val tapir                   = "1.9.9"
-    val refined                 = "0.10.1"
+    val tapir                   = "1.10.15"
     val betterMonadicForVersion = "0.3.1"
-    val semanticDBVersion       = "4.5.13"
-    val kindProjectorVersion    = "0.13.2"
-    val mongo4Cats              = "0.6.5"
-    val zioSchemaProtobuf       = "0.4.9"
+    val semanticDBVersion       = "4.12.7"
+    val kindProjectorVersion    = "0.13.3"
+    val mongo4Cats              = "0.7.8"
+    val zioSchemaProtobuf       = "1.3.0"
     val zioRedis                = "0.2.0"
-    val logback                 = "1.4.5"
-    val AkkaVersion             = "2.7.0"
-    val AkkaHttpVersion         = "10.4.0"
-    val zioSttpClient           = "3.8.15"
-    val nimbusJose              = "9.31"
-    val logbackEncoderV         = "7.3"
-    val zioMetrics              = "2.2.0"
-    val lokiAppender            = "1.4.1"
+    val logback                 = "1.5.6"
+    val zioSttpClient           = "3.9.7"
+    val nimbusJose              = "9.40"
+    val logbackEncoderV         = "8.0"
+    val zioMetrics              = "2.3.1"
+    val lokiAppender            = "1.5.1"
     val zioCache                = "0.2.3"
-    val classGraph              = "4.8.157"
-    val listing                 = "0.0.1-RC1"
-    val jsonSchemaCirce         = "0.7.4"
-    val scalatest               = "3.2.17"
-    val hiisGalleryLibrary      = "0.0.2-RC1"
+    val jsonSchemaCirce         = "0.11.2"
+    val scalatest               = "3.2.19"
+    val apacheCommons           = "1.17.0"
 
   }
 
@@ -67,7 +47,6 @@ object Dependencies {
       "dev.zio"   %% "zio"          % Versions.zio,
       "dev.zio"   %% "zio-streams"  % Versions.zio,
       "dev.zio"   %% "zio-macros"   % Versions.zio,
-      "dev.zio"   %% "zio-prelude"  % ZioPrelude,
       "nl.vroste" %% "rezilience"   % zioResilience,
       "dev.zio"   %% "zio-cache"    % zioCache,
       "dev.zio"   %% "zio-test"     % Versions.zio % Test,
@@ -148,7 +127,7 @@ object Dependencies {
     )
 
     val apache = Seq(
-      "commons-codec" % "commons-codec" % "1.15"
+      "commons-codec" % "commons-codec" % apacheCommons
     )
 
     val compilerPlugins = Seq(
