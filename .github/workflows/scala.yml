@@ -26,7 +26,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '21'
-          distribution: 'temurin'
+          distribution: 'adopt'
           cache: 'sbt'
 
       - name: Run tests
@@ -45,7 +45,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '21'
-          distribution: 'temurin'
+          distribution: 'adopt'
           cache: 'sbt'
           
       - name: Formatting
