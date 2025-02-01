@@ -194,4 +194,4 @@ lazy val buildInfoOps = Seq(
 addCommandAlias("build", ";clean; compile; test; assembly;")
 addCommandAlias("build-docker", ";build; docker;")
 addCommandAlias("fix-lint", ";scalafixAll; scalafmtSbt;")
-addCommandAlias("start", "~reStart;")
+addCommandAlias("start", "application/~reStart;")

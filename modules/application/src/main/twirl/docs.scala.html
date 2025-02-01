@@ -1,0 +1,78 @@
+@import play.twirl.api.Html
+
+@(file: String)
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <!--favicon icon-->
+    <link rel="icon" href="https://www.hiis.io/favicon.ico" type="image/png">
+    <title>API Documentation</title>
+    @Html("""
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;600&family=Open+Sans:wght@300;600&family=Roboto+Mono&display=swap"
+          rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+          rel="stylesheet">
+    """)
+    <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js">
+    </script>
+    <script src="https://unpkg.com/rapipdf/dist/rapipdf-min.js"></script>
+
+    @Html("""
+    <style>
+        thedoc {
+            font-family: "Montserrat", sans-serif;
+        }
+
+        img {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .center {
+            padding-top: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 20px;
+        }
+
+    </style>
+    """)
+</head>
+<body>
+<rapi-doc spec-url="../@file"
+          show-method-in-nav-bar="as-colored-text"
+          id="thedoc"
+          show-header="false"
+          render-style="read"
+          bg-color='#121212'
+          text-color='#ffff'
+          nav-bg-color='#000e8a'
+          nav-text-color='#fff'
+          nav-hover-bg-color='#ff0066'
+          nav-hover-text-color='#fff'
+          nav-accent-color='#ff0066'
+          primary-color='#ff0066'
+>
+    <img
+            slot="nav-logo" style="width:70px; height: 70px;"
+            src="https://www.hiis.io/assets/img/logo-white.png"
+    />
+    <div class="center">
+        <rapi-pdf
+                spec-url="../@file"
+                button-label="DOWNLOAD PDF"
+                button-bg="#ff0066"
+                hide-input="true"
+                pdf-primary-color="#000e8a"
+                pdf-alternate-color="#ff0066"
+        >
+        </rapi-pdf>
+    </div>
+</rapi-doc>
+</body>
+</html>

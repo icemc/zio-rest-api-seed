@@ -6,6 +6,7 @@ import io.circe.{ parser, Json }
 import Api.ApiError
 import Api.ApiError.{ InternalServerError, MethodNotAllowed, NotFound }
 import io.hiis.service.application.api.utils.tapir.TapirT.ServerEndpointT
+import io.hiis.service.core.build.BuildInfo
 import io.hiis.service.core.models.Config.AppServerConfig
 import io.hiis.service.core.models.Constants.CustomHeaders.{
   REQUEST_ID_HEADER,
@@ -22,11 +23,21 @@ import io.hiis.service.core.utils.Metrics.Request.Internal
 import io.hiis.service.core.utils.Logging
 import io.hiis.service.core.utils.Logging.Annotation.annotateWithRequest
 import io.hiis.service.core.utils.Logging.logger
+import sttp.apispec.openapi.{ Server => OpenApiServer }
 import sttp.model.{ Header, StatusCode }
 import sttp.monad.MonadError
 import sttp.tapir.docs.openapi.OpenAPIDocsOptions
 import sttp.tapir.model.ServerRequest
 import sttp.tapir.server.interceptor.RequestInterceptor.RequestResultTransform
+import sttp.tapir.server.interceptor.cors.{ CORSConfig, CORSInterceptor }
+import sttp.tapir.server.interceptor.cors.CORSConfig.{
+  AllowedCredentials,
+  AllowedHeaders,
+  AllowedMethods,
+  AllowedOrigin,
+  ExposedHeaders,
+  MaxAge
+}
 import sttp.tapir.server.interceptor.decodefailure.DefaultDecodeFailureHandler
 import sttp.tapir.server.interceptor.decodefailure.DefaultDecodeFailureHandler.FailureMessages
 import sttp.tapir.server.interceptor.reject.{ RejectContext, RejectHandler }
@@ -55,21 +66,35 @@ trait ApiGatewayT extends Interceptors { self: Logging =>
 
   // End user endpoints swagger docs
   private val endUserSwaggerEndpoint =
-    SwaggerInterpreter().fromServerEndpoints(
-      endpoints.filterNot(_.isExcluded),
-      BuildInfo.name,
-      BuildInfo.version
-    )
+    SwaggerInterpreter(
+      customiseDocsModel = _.copy(servers =
+        List(OpenApiServer(config.serviceURL.getOrElse(s"${config.host}:${config.port}")))
+      ),
+      swaggerUIOptions = SwaggerUIOptions.default
+        .copy(pathPrefix = List("swagger"), yamlName = "docs.yaml")
+    ).fromServerEndpoints(endpoints.filterNot(_.isExcluded), BuildInfo.name, BuildInfo.version)
 
   // Excluded End user endpoints swagger docs
   private val excludedEndUserSwaggerEndpoint =
     SwaggerInterpreter(
       openAPIInterpreterOptions = OpenAPIDocsOptions.default,
       swaggerUIOptions = SwaggerUIOptions.default
-        .copy(pathPrefix = List("docs-excluded"), yamlName = "docs-excluded.yaml"),
+        .copy(pathPrefix = List("docs-excluded"), yamlName = "docs.yaml"),
       addServerWhenContextPathPresent = true
     )
       .fromServerEndpoints(endpoints.filter(_.isExcluded), BuildInfo.name, BuildInfo.version)
+
+  val cors: CORSInterceptor[Task] = CORSInterceptor.customOrThrow[Task](
+    CORSConfig(
+      allowedOrigin = AllowedOrigin.All,
+      allowedCredentials = AllowedCredentials.Deny,
+      allowedMethods = AllowedMethods.All,
+      allowedHeaders = AllowedHeaders.All,
+      exposedHeaders = ExposedHeaders.None,
+      maxAge = MaxAge.Default,
+      preflightResponseStatusCode = StatusCode.NoContent
+    )
+  )
 
   private val APP =
     ZioHttpInterpreter(
@@ -78,11 +103,14 @@ trait ApiGatewayT extends Interceptors { self: Logging =>
         .decodeFailureHandler(failureHandler)
         .prependInterceptor(requestLoggingInterceptor) // Do not append this interceptor
         .appendInterceptor(errorLoggingInterceptor)    // Do not prepend this interceptor
+        .appendInterceptor(cors)
         .options
     ).toHttp(
       endpoints
         ++ endUserSwaggerEndpoint
         ++ excludedEndUserSwaggerEndpoint
+        :+ DocsEndpoint.get("docs", "swagger/docs.yaml")
+        :+ DocsEndpoint.get("docs-excluded", "docs-excluded/docs.yaml")
     )
 
   def start = for {

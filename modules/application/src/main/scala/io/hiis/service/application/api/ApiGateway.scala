@@ -2,7 +2,13 @@ package io.hiis.service.application.api
 
 import io.hiis.service.application.api
 import io.hiis.service.application.services.MetricsService
-import api.controllers.{ HealthController, MetricsController, VersionController }
+import api.controllers.{
+  HealthController,
+  HomeController,
+  MetricsController,
+  OptionsController,
+  VersionController
+}
 import api.utils.{ ApiGatewayT, Controller }
 import io.hiis.service.core.models.Config.AppServerConfig
 import io.hiis.service.core.utils.Logging
@@ -25,7 +31,9 @@ object ApiGateway {
       } yield api.ApiGateway(
         HealthController,
         VersionController,
-        MetricsController(metricsService)
+        MetricsController(metricsService),
+        HomeController,
+        OptionsController
       )(config)
     )
 
