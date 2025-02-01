@@ -64,12 +64,6 @@ object Dependencies {
       "org.scalatest" %% "scalatest"         % scalatest    % Test
     )
 
-    val integrationTest = Seq(
-      "dev.zio" %% "zio-test"          % Versions.zio % "it,test",
-      "dev.zio" %% "zio-test-sbt"      % Versions.zio % "it,test",
-      "dev.zio" %% "zio-test-magnolia" % Versions.zio % "it,test"
-    )
-
     val tapir = Seq(
       "com.softwaremill.sttp.tapir"   %% "tapir-zio-http-server"   % Versions.tapir,
       "com.softwaremill.sttp.tapir"   %% "tapir-sttp-stub-server"  % Versions.tapir,
@@ -140,8 +134,5 @@ object Dependencies {
     )
 
     val cats = Seq("dev.zio" %% "zio-interop-cats" % zioInteropCats)
-
-    // Scalafix rules
-    val organizeImports = "com.github.liancheng" %% "organize-imports" % organizeImportsVersion
   }
 }

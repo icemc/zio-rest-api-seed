@@ -62,7 +62,6 @@ lazy val application = project
   .dependsOn(core)
 
 lazy val it = (project in file("modules/it"))
-  .configs(IntegrationTest)
   .disablePlugins(sbtassembly.AssemblyPlugin)
   .settings(
     compilerPlugins.flatMap(addCompilerPlugin),
@@ -70,10 +69,9 @@ lazy val it = (project in file("modules/it"))
     consoleSettings,
     name    := "integration-test",
     version := sys.env.getOrElse("VERSION", applicationVersion),
-    Defaults.itSettings,
-    libraryDependencies ++= integrationTest
+    libraryDependencies ++= tests
   )
-  .dependsOn(application % "it->test")
+  .dependsOn(core, application)
 
 lazy val commonSettings = Seq(
   scalafmtOnCompile := true,
@@ -81,7 +79,6 @@ lazy val commonSettings = Seq(
   javacOptions ++= Seq("-source", "21", "-target", "21"),
   semanticdbEnabled := true,
   semanticdbVersion := scalafixSemanticdb.revision,
-  scalafixDependencies.withRank(KeyRanks.Invisible) += organizeImports,
   resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
   resolvers += "hiis-repository-releases" at "https://artifacts.hiis.io/releases",
   resolvers += "hiis-repository-private" at "https://artifacts.hiis.io/private",
