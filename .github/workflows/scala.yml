@@ -27,7 +27,6 @@ jobs:
         with:
           java-version: '21'
           distribution: 'adopt'
-          cache: 'sbt'
 
       - name: Setup sbt launcher
         uses: sbt/setup-sbt@v1
@@ -48,9 +47,8 @@ jobs:
         with:
           java-version: '21'
           distribution: 'adopt'
-          cache: 'sbt'
 
       - name: Setup sbt launcher
         uses: sbt/setup-sbt@v1
       - name: Formatting
-        run: sbt scalafmtSbtCheck scalafmtCheck test:scalafmtCheck
+        run: sbt clean scalafmtSbtCheck scalafmtCheck test:scalafmtCheck
